@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>One Apartments - Sistema Multi-Sede</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-light: #f4f4f4;
+            --gray-med: #888888;
+            --accent: #ff0000; /* Rojo para destacar extras */
+        }
+
+        body { 
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0; 
+            background-color: var(--white);
+            color: var(--black);
+            padding-bottom: 140px; 
+        }
+
+        /* HEADER */
+        .header {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 4px; font-weight: 300; }
+
+        /* SELECTOR DE SEDES (BOTONES) */
+        .sede-container {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+            background: var(--gray-light);
+            overflow-x: auto; /* Scroll horizontal si hay muchas sedes en móvil */
+        }
+        .btn-sede {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 5px;
+            border: 1px solid #ccc;
+            background: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-sede.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+
+        /* INPUTS */
+        .input-group { margin-bottom: 20px; display: flex; gap: 10px; }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px; /* Evita zoom en iPhone */
+            outline: none;
+        }
+        input:focus { border-color: var(--black); }
+
+        /* LISTA DE PRODUCTOS */
+        .producto-row {
+            display: flex;
+            align-items: center;
+            padding: 15px 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .info { flex: 2; }
+        .p-name { font-weight: bold; font-size: 0.95rem; display: block; }
+        .p-stock { font-size: 0.75rem; color: var(--gray-med); }
+        .p-cobrar { font-size: 0.85rem; font-weight: bold; margin-top: 2px; display: block; }
+        .p-extra { color: var(--accent); font-size: 0.7rem; font-weight: bold; }
+
+        /* BOTONES + / - */
+        .controles {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn-qty {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1.5px solid var(--black);
+            background: white;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-qty:active { background: #eee; }
+        .qty-num { min-width: 25px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+
+        /* FOOTER FIJO */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            border-top: 2px solid var(--black);
+            padding: 15px 20px;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        .total-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+        .btn-print {
+            background: var(--black);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* RESPONSIVO PARA PC */
+        @media (min-width: 768px) {
+            .container { margin-top: 20px; }
+            .footer { left: 50%; transform: translateX(-50%); max-width: 800px; border: 2px solid var(--black); border-bottom: none; border-radius: 15px 15px 0 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>ONE APARTMENTS</h1>
+</div>
+
+<div class="sede-container" id="botonesSede">
+    <button class="btn-sede active" onclick="cambiarSede('sede1', this)">Lleras</button>
+    <button class="btn-sede" onclick="cambiarSede('sede2', this)">Laureles</button>
+    <button class="btn-sede" onclick="cambiarSede('sede3', this)">Provenza</button>
+</div>
+
+<div class="container">
+    <div class="input-group">
+        <input type="text" id="huesped" placeholder="Nombre Huésped">
+        <input type="text" id="habitacion" placeholder="Suite #">
+    </div>
+
+    <div id="listaProductos"></div>
+</div>
+
+<div class="footer">
+    <div class="total-area">
+        <span style="font-size: 0.8rem; color: var(--gray-med);">TOTAL A COBRAR</span>
+        <span id="totalFinal">$0</span>
+    </div>
+    <button class="btn-print" onclick="generarPDF()">Generar Factura PDF</button>
+</div>
+
+<script>
+    // CONFIGURACION DE PRODUCTOS POR SEDE
+    const sedes = {
+        sede1: [ // Lleras
+            { nombre: "Agua PH+ 477ML", precio: 10000, stock: 5 },
+            { nombre: "Coca-cola Orignal", precio: 7000, stock: 3 },
+            { nombre: "Gatorade", precio: 8000, stock: 5 },
+            { nombre: "Redbull", precio: 18000, stock: 2 },
+            { nombre: "Electrolit", precio: 21000, stock: 2 },
+            { nombre: "Pringless", precio: 12000, stock: 1 },
+            { nombre: "Papas lasschiss", precio: 15000, stock: 2 },
+            { nombre: "Mani 35G", precio: 5000, stock: 1 },
+            { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
+            { nombre: "Shampoo jacuzzi", precio: 15000, stock: 2 },
+            { nombre: "Condones Today", precio: 40000, stock: 2 },
+            { nombre: "Aguila ligth", precio: 8000, stock: 2 },
+            { nombre: "Pilsen", precio: 8000, stock: 2 },
+            { nombre: "Jp Chenet", precio: 20000, stock: 3 },
+            { nombre: "Vino", precio: 45000, stock: 1 }
+        ],
+        sede2: [ // Laureles
+            { nombre: "Agua PH+ 477ML", precio: 10000, stock: 5 },
+            { nombre: "Coca-cola Orignal", precio: 7000, stock: 3 },
+            { nombre: "Coca-cola zero", precio: 7000, stock: 3 },
+            { nombre: "Gatorade", precio: 8000, stock: 5 },
+            { nombre: "Redbull", precio: 18000, stock: 2 },
+            { nombre: "Electrolit", precio: 21000, stock: 2 },
+            { nombre: "Pringless", precio: 12000, stock: 1 },
+            { nombre: "Papas lasschiss", precio: 15000, stock: 2 },
+            { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
+            { nombre: "Shampoo jacuzzi", precio: 15000, stock: 2 },
+            { nombre: "Condones Today", precio: 40000, stock: 2 },
+            { nombre: "Jp Chenet", precio: 20000, stock: 3 },
+            { nombre: "Corona", precio: 13000, stock: 3 },
+            { nombre: "Vino", precio: 45000, stock: 1 }
+        ],
+        sede3: [ // Provenza
+            { nombre: "Pringless", precio: 12000, stock: 1 },
+            { nombre: "Papas lasschiss", precio: 15000, stock: 2 },
+            { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
+            { nombre: "Shampoo jacuzzi", precio: 15000, stock: 2 },
+            { nombre: "Condones Today", precio: 40000, stock: 2 },
+            { nombre: "Vino", precio: 45000, stock: 1 }
+
+        ]
+    };
+
+    let sedeActual = 'sede1';
+    let inventarioActivo = [];
+
+    function cambiarSede(idSede, btn) {
+        // UI de botones
+        document.querySelectorAll('.btn-sede').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Carga de datos
+        sedeActual = idSede;
+        inventarioActivo = sedes[idSede].map(p => ({ ...p, fisico: p.stock }));
+        
+        // Limpiar campos para nueva sede
+        document.getElementById('huesped').value = "";
+        document.getElementById('habitacion').value = "";
+        
+        render();
+    }
+
+    function ajustar(index, delta) {
+        let nuevo = inventarioActivo[index].fisico + delta;
+        // Permite bajar hasta -5 para pedidos extra
+        if (nuevo >= -5 && nuevo <= inventarioActivo[index].stock) {
+            inventarioActivo[index].fisico = nuevo;
+            render();
+        }
+    }
+
+    function render() {
+        const contenedor = document.getElementById('listaProductos');
+        contenedor.innerHTML = '';
+        let total = 0;
+
+        inventarioActivo.forEach((p, i) => {
+            const cobro = p.stock - p.fisico;
+            total += (cobro * p.precio);
+            const esExtra = p.fisico < 0;
+
+            contenedor.innerHTML += `
+                <div class="producto-row">
+                    <div class="info">
+                        <span class="p-name">${p.nombre}</span>
+                        <span class="p-stock">Stock: ${p.stock} | Precio: $${p.precio.toLocaleString()}</span>
+                        <span class="p-cobrar" style="color: ${cobro > 0 ? 'red' : 'black'}">Cobrar: ${cobro}</span>
+                        ${esExtra ? '<span class="p-extra">★ PEDIDO ADICIONAL</span>' : ''}
+                    </div>
+                    <div class="controles">
+                        <div class="btn-qty" onclick="ajustar(${i}, -1)">−</div>
+                        <div class="qty-num">${p.fisico}</div>
+                        <div class="btn-qty" onclick="ajustar(${i}, 1)">+</div>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('totalFinal').innerText = `$${total.toLocaleString()}`;
+    }
+
+    function generarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const huesped = document.getElementById('huesped').value || "Cliente";
+        const suite = document.getElementById('habitacion').value || "S/N";
+        const sedeTexto = document.querySelector('.btn-sede.active').innerText;
+
+        const cobros = inventarioActivo
+            .filter(p => (p.stock - p.fisico) > 0)
+            .map(p => {
+                const c = p.stock - p.fisico;
+                return [p.nombre, `$${p.precio.toLocaleString()}`, c, `$${(p.precio * c).toLocaleString()}`];
+            });
+
+        if (cobros.length === 0) {
+            alert("No hay consumos para facturar.");
+            return;
+        }
+
+        // CABECERA FACTURA
+        doc.setFillColor(0, 0, 0);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.text("ONE APARTMENTS", 14, 20);
+        doc.setFontSize(10);
+        doc.text(sedeTexto, 14, 28);
+        doc.text(`FECHA: ${new Date().toLocaleString()}`, 14, 34);
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
+        doc.text(`HUÉSPED: ${huesped.toUpperCase()}`, 14, 50);
+        doc.text(`SUITE: ${suite}`, 14, 56);
+
+        doc.autoTable({
+            head: [['PRODUCTO', 'PRECIO', 'CANT.', 'SUBTOTAL']],
+            body: cobros,
+            startY: 65,
+            headStyles: { fillColor: [0, 0, 0] },
+            theme: 'grid'
+        });
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(`TOTAL A PAGAR: ${document.getElementById('totalFinal').innerText}`, 14, doc.lastAutoTable.finalY + 15);
+        
+        doc.save(`Factura_One_${suite}.pdf`);
+    }
+
+    // Inicializar la primera sede
+    cambiarSede('sede1', document.querySelector('.btn-sede'));
+</script>
+</body>
+</html>
