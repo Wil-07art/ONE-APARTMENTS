@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>One Apartments - Sistema Multi-Sede</title>
+    <title>One Apartments - Cobro suite</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -166,6 +166,7 @@
     <button class="btn-sede active" onclick="cambiarSede('sede1', this)">Lleras</button>
     <button class="btn-sede" onclick="cambiarSede('sede2', this)">Laureles</button>
     <button class="btn-sede" onclick="cambiarSede('sede3', this)">Provenza</button>
+    <button class="btn-sede" onclick="cambiarSede('Apto', this)">Apto</button>
 </div>
 
 <div class="container">
@@ -195,7 +196,7 @@
             { nombre: "Redbull", precio: 18000, stock: 2 },
             { nombre: "Electrolit", precio: 21000, stock: 2 },
             { nombre: "Pringless", precio: 12000, stock: 1 },
-            { nombre: "Papas lasschiss", precio: 15000, stock: 2 },
+            { nombre: "Papas lasschiss 65g", precio: 6900, stock: 3 },
             { nombre: "Mani 35G", precio: 5000, stock: 1 },
             { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
             { nombre: "Shampoo jacuzzi", precio: 15000, stock: 2 },
@@ -223,13 +224,30 @@
         ],
         sede3: [ // Provenza
             { nombre: "Pringless", precio: 12000, stock: 1 },
-            { nombre: "Papas lasschiss", precio: 15000, stock: 2 },
+            { nombre: "Papas lasschiss 65g", precio: 69, stock: 3 },
             { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
             { nombre: "Shampoo jacuzzi", precio: 15000, stock: 2 },
             { nombre: "Condones Today", precio: 40000, stock: 2 },
             { nombre: "Vino", precio: 45000, stock: 1 }
 
+         ],
+        Apto: [ // Apartamento
+          { nombre: "Agua PH+ 477ML", precio: 10000, stock: 10 },
+            { nombre: "Coca-cola Orignal", precio: 7000, stock: 8 },
+            { nombre: "Gatorade", precio: 8000, stock: 10 },
+            { nombre: "Redbull", precio: 18000, stock: 12 },
+            { nombre: "Electrolit", precio: 21000, stock: 12 },
+            { nombre: "Pringless", precio: 12000, stock: 4 },
+            { nombre: "Papas lasschiss 65g", precio: 6900, stock: 5 },
+            { nombre: "Ferrero R X8", precio: 40000, stock: 1 },
+            { nombre: "Shampoo jacuzzi", precio: 15000, stock: 3 },
+            { nombre: "Condones Today", precio: 40000, stock: 5 },
+            { nombre: "Aguila ligth", precio: 8000, stock: 4 },
+            { nombre: "Pilsen", precio: 8000, stock: 4 },
+            { nombre: "Jp Chenet", precio: 20000, stock: 12 },
+            { nombre: "Vino", precio: 45000, stock: 1 }
         ]
+        
     };
 
     let sedeActual = 'sede1';
@@ -342,4 +360,5 @@
     cambiarSede('sede1', document.querySelector('.btn-sede'));
 </script>
 </body>
+
 </html>
