@@ -1,0 +1,97 @@
+:root {
+    --black: #000000;
+    --white: #ffffff;
+    --gray-light: #f4f4f4;
+    --gray-med: #888888;
+    --accent: #ff0000;
+}
+
+body { 
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; 
+    background-color: var(--white);
+    color: var(--black);
+    padding-bottom: 140px; 
+}
+
+.header {
+    background-color: var(--black);
+    color: var(--white);
+    padding: 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.header h1 { margin: 0; font-size: 1.1rem; letter-spacing: 4px; font-weight: 300; }
+
+.sede-container {
+    display: flex;
+    gap: 5px;
+    padding: 10px;
+    background: var(--gray-light);
+    overflow-x: auto;
+}
+
+.btn-sede {
+    flex: 1; min-width: 100px; padding: 12px 5px;
+    border: 1px solid #ccc; background: white;
+    font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+    cursor: pointer; border-radius: 5px;
+}
+
+.btn-sede.active { background: var(--black); color: var(--white); }
+
+.container { padding: 15px; max-width: 800px; margin: auto; }
+
+.input-group { margin-bottom: 20px; display: flex; gap: 10px; }
+input[type="text"], input[type="number"] {
+    flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;
+}
+
+/* SECCIÓN DAÑOS */
+.btn-damage-toggle {
+    width: 100%; padding: 10px; background: #fff5f5; border: 1px dashed var(--accent);
+    color: var(--accent); font-weight: bold; margin-bottom: 10px; border-radius: 8px; cursor: pointer;
+}
+
+.danos-submenu {
+    background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+}
+
+.hidden { display: none; }
+
+.dano-item {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+    font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;
+}
+
+.custom-damage { display: flex; gap: 5px; margin-top: 10px; }
+.custom-damage button { background: var(--black); color: white; border: none; padding: 0 15px; border-radius: 5px; }
+
+/* PRODUCTOS */
+.producto-row { display: flex; align-items: center; padding: 15px 5px; border-bottom: 1px solid #eee; }
+.info { flex: 2; }
+.p-name { font-weight: bold; font-size: 0.95rem; }
+.p-stock { font-size: 0.75rem; color: var(--gray-med); display: block; }
+.p-cobrar { font-size: 0.85rem; font-weight: bold; color: var(--accent); }
+
+.controles { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 15px; }
+.btn-qty {
+    width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--black);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+
+.footer {
+    position: fixed; bottom: 0; width: 100%; background: white;
+    border-top: 2px solid var(--black); padding: 15px 20px; box-sizing: border-box;
+}
+.total-area { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.3rem; }
+.btn-print {
+    background: var(--black); color: white; border: none; width: 100%; padding: 16px;
+    border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+    .footer { left: 50%; transform: translateX(-50%); max-width: 800px; border-radius: 15px 15px 0 0; }
+}
