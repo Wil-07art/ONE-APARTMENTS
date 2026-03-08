@@ -29,16 +29,16 @@
 
     <button class="btn-damage-toggle" onclick="toggleDanos()"> Cobro de Daños</button>
     
-    <div id="seccionDanos" class="danos-submenu hidden">
-        <h4>Cargos por Daños</h4>
-        <div id="listaDanosCheck">
-            </div>
-        <div class="custom-damage">
-            <input type="text" id="otroDanoNombre" placeholder="Otro daño (ej. Toalla manchada)">
-            <input type="number" id="otroDanoPrecio" placeholder="Precio $">
-            <button onclick="agregarDanoPersonalizado()">+</button>
+   <div id="seccionDanos" class="danos-submenu hidden">
+    <h4>Cargos por Daños / Faltantes</h4>
+    <div id="listaDanosCheck">
         </div>
+    <div class="custom-damage">
+        <input type="text" id="otroDanoNombre" placeholder="Otro (ej. Control TV)">
+        <input type="number" id="otroDanoPrecio" placeholder="Precio $">
+        <button onclick="agregarDanoPersonalizado()">Agregar</button>
     </div>
+</div>
 
     <hr>
     <div id="listaProductos"></div>
@@ -55,4 +55,5 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
