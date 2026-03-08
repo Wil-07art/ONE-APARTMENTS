@@ -58,68 +58,99 @@ const sedes = {
     ]
 };
 
-// Catálogo de daños comunes
-const danosComunes = [
-    { nombre: "Control TV Perdido", precio: 80000 },
-    { nombre: "Copa Rota", precio: 15000 },
-    { nombre: "Toalla Dañada/Manchada", precio: 45000 },
-    { nombre: "Cobija/Lencería Manchada", precio: 120000 }
+// Catálogo base de daños
+const danosCatalogo = [
+    { nombre: "LLAVERO APARTAMENTO", precio: 50000 },
+    { nombre: "LLAVE ", precio: 50000 },
+    { nombre: "TOALLA DE BAÑO GRANDE", precio: 60000 },
+    { nombre: "TOALLA PEQUEÑA", precio: 25000 },
+    { nombre: "CONTROL TV", precio: 150000 },
+    { nombre: "ELECTRODOMESTICO", precio: 2500000 },
+    { nombre: "DAÑO A LA HABIRACION", precio: 1000000 },
+    { nombre: "SABANA RESORTE", precio: 60000 },
+    { nombre: "SABANA LISA", precio: 60000 },
+    { nombre: "ALMOHADA", precio: 50000 },
+    { nombre: "FUNDA ALMOHADA", precio: 30000 },
+    { nombre: "PROTECTOR ALMOHADA", precio: 25000 },
+    { nombre: "PROTECTOR COLCHON", precio: 200000 },
+    { nombre: "POSILLO", precio: 20000 },
+    { nombre: "VASO", precio: 30000 },
+    { nombre: "COPA", precio: 50000 },
+    { nombre: "PLATO PLANO", precio: 30000 },
+    { nombre: "PLATO HONDO", precio: 30000 },
+    { nombre: "TENEDOR GRANDE", precio: 20000 },
+    { nombre: "TENEDOR PEQUEÑO", precio: 20000 },
+    { nombre: "CUCHARA GRANDE", precio: 20000 },
+    { nombre: "CUCHARA PEQUEÑA", precio: 20000 },
+    { nombre: "CUCHILLO DE COCINA", precio: 20000 },
+    { nombre: "CUCHILLO DE MESA", precio: 20000 },
+    { nombre: "SACA CORCHO", precio: 20000 },
+    
 ];
 
-let sedeActual = 'sede1';
-let inventarioActivo = [];
+// Aquí guardaremos los daños que el usuario vaya sumando
 let listaDanosSeleccionados = [];
 
+function renderDanos() {
+    const contenedor = document.getElementById('listaDanosCheck');
+    contenedor.innerHTML = '';
+
+    // Renderizamos los daños del catálogo y los personalizados que se hayan agregado
+    listaDanosSeleccionados.forEach((d, i) => {
+        contenedor.innerHTML += `
+            <div class="dano-row">
+                <div class="dano-info">
+                    <span class="dano-label">${d.nombre}</span>
+                    <span class="dano-sub">$${d.precio.toLocaleString()} c/u</span>
+                </div>
+                <div class="controles">
+                    <div class="btn-qty" onclick="ajustarDano(${i}, -1)">−</div>
+                    <div class="qty-num">${d.cantidad}</div>
+                    <div class="btn-qty" onclick="ajustarDano(${i}, 1)">+</div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Inicializar lista de daños al cambiar de sede
 function cambiarSede(idSede, btn) {
     document.querySelectorAll('.btn-sede').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     sedeActual = idSede;
     inventarioActivo = sedes[idSede].map(p => ({ ...p, fisico: p.stock }));
-    listaDanosSeleccionados = [];
+    
+    // Al iniciar, cargamos el catálogo con cantidad 0
+    listaDanosSeleccionados = danosCatalogo.map(d => ({ ...d, cantidad: 0 }));
+    
     document.getElementById('huesped').value = "";
     document.getElementById('habitacion').value = "";
     renderDanos();
     render();
 }
 
-function toggleDanos() {
-    const div = document.getElementById('seccionDanos');
-    div.classList.toggle('hidden');
-}
-
-function renderDanos() {
-    const contenedor = document.getElementById('listaDanosCheck');
-    contenedor.innerHTML = danosComunes.map((d, i) => `
-        <div class="dano-item">
-            <label><input type="checkbox" onchange="toggleDanoItem(${i}, this)"> ${d.nombre}</label>
-            <span>$${d.precio.toLocaleString()}</span>
-        </div>
-    `).join('');
-}
-
-function toggleDanoItem(index, checkbox) {
-    if (checkbox.checked) {
-        listaDanosSeleccionados.push(danosComunes[index]);
-    } else {
-        listaDanosSeleccionados = listaDanosSeleccionados.filter(d => d.nombre !== danosComunes[index].nombre);
+function ajustarDano(index, delta) {
+    let nuevaCant = listaDanosSeleccionados[index].cantidad + delta;
+    if (nuevaCant >= 0) {
+        listaDanosSeleccionados[index].cantidad = nuevaCant;
+        renderDanos();
+        render(); // Para actualizar el total final
     }
-    render();
 }
 
 function agregarDanoPersonalizado() {
     const nom = document.getElementById('otroDanoNombre');
     const pre = document.getElementById('otroDanoPrecio');
     if (nom.value && pre.value) {
-        listaDanosSeleccionados.push({ nombre: nom.value, precio: parseInt(pre.value) });
-        nom.value = ""; pre.value = "";
-        render();
-    }
-}
-
-function ajustar(index, delta) {
-    let nuevo = inventarioActivo[index].fisico + delta;
-    if (nuevo >= -5 && nuevo <= inventarioActivo[index].stock) {
-        inventarioActivo[index].fisico = nuevo;
+        // Agregamos un daño nuevo con cantidad 1
+        listaDanosSeleccionados.push({ 
+            nombre: nom.value, 
+            precio: parseInt(pre.value), 
+            cantidad: 1 
+        });
+        nom.value = ""; 
+        pre.value = "";
+        renderDanos();
         render();
     }
 }
@@ -129,55 +160,38 @@ function render() {
     contenedor.innerHTML = '';
     let total = 0;
 
-    // Calcular total de productos
+    // Sumar Consumos
     inventarioActivo.forEach((p, i) => {
         const cobro = p.stock - p.fisico;
         total += (cobro * p.precio);
-        if (cobro > 0 || p.fisico < 0) {
-            contenedor.innerHTML += `
-                <div class="producto-row">
-                    <div class="info">
-                        <span class="p-name">${p.nombre}</span>
-                        <span class="p-stock">Precio: $${p.precio.toLocaleString()}</span>
-                        <span class="p-cobrar">Cobrar: ${cobro}</span>
-                    </div>
-                    <div class="controles">
-                        <div class="btn-qty" onclick="ajustar(${i}, -1)">−</div>
-                        <div class="qty-num">${p.fisico}</div>
-                        <div class="btn-qty" onclick="ajustar(${i}, 1)">+</div>
-                    </div>
+        // ... (resto del código de render de productos que ya tenías)
+        contenedor.innerHTML += `
+            <div class="producto-row">
+                <div class="info">
+                    <span class="p-name">${p.nombre}</span>
+                    <span class="p-stock">Stock: ${p.stock} | $${p.precio.toLocaleString()}</span>
+                    <span class="p-cobrar" style="color: ${cobro > 0 ? 'red' : 'black'}">Cobrar: ${cobro}</span>
                 </div>
-            `;
-        } else {
-            // Mostrar todos aunque no tengan cobro para poder ajustar
-            contenedor.innerHTML += `
-                <div class="producto-row">
-                    <div class="info">
-                        <span class="p-name">${p.nombre}</span>
-                        <span class="p-stock">Stock: ${p.stock}</span>
-                    </div>
-                    <div class="controles">
-                        <div class="btn-qty" onclick="ajustar(${i}, -1)">−</div>
-                        <div class="qty-num">${p.fisico}</div>
-                        <div class="btn-qty" onclick="ajustar(${i}, 1)">+</div>
-                    </div>
+                <div class="controles">
+                    <div class="btn-qty" onclick="ajustar(${i}, -1)">−</div>
+                    <div class="qty-num">${p.fisico}</div>
+                    <div class="btn-qty" onclick="ajustar(${i}, 1)">+</div>
                 </div>
-            `;
-        }
+            </div>
+        `;
     });
 
-    // Sumar daños al total
-    listaDanosSeleccionados.forEach(d => total += d.precio);
+    // Sumar Daños al Total Final
+    listaDanosSeleccionados.forEach(d => {
+        total += (d.precio * d.cantidad);
+    });
+
     document.getElementById('totalFinal').innerText = `$${total.toLocaleString()}`;
 }
 
+// Actualización de la Factura PDF
 function generarPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const huesped = document.getElementById('huesped').value || "Cliente";
-    const suite = document.getElementById('habitacion').value || "S/N";
-    const sedeTexto = document.querySelector('.btn-sede.active').innerText;
-
+    // ... (inicialización del PDF)
     const filas = [];
     
     // Consumos
@@ -186,11 +200,12 @@ function generarPDF() {
         filas.push([p.nombre, `$${p.precio.toLocaleString()}`, c, `$${(p.precio * c).toLocaleString()}`]);
     });
 
-    // Daños
-    listaDanosSeleccionados.forEach(d => {
-        filas.push([`⚠️ DAÑO: ${d.nombre}`, `$${d.precio.toLocaleString()}`, 1, `$${d.precio.toLocaleString()}`]);
+    // Daños con cantidad > 0
+    listaDanosSeleccionados.filter(d => d.cantidad > 0).forEach(d => {
+        filas.push([`⚠️ DAÑO: ${d.nombre}`, `$${d.precio.toLocaleString()}`, d.cantidad, `$${(d.precio * d.cantidad).toLocaleString()}`]);
     });
 
+    // ... (resto del código de generación del PDF)
     if (filas.length === 0) {
         alert("No hay consumos ni daños para facturar.");
         return;
