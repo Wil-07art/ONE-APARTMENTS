@@ -95,3 +95,24 @@ input[type="text"], input[type="number"] {
 @media (min-width: 768px) {
     .footer { left: 50%; transform: translateX(-50%); max-width: 800px; border-radius: 15px 15px 0 0; }
 }
+
+/* Añadir a tu style.css existente */
+.dano-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.dano-info {
+    display: flex;
+    flex-direction: column;
+}
+.dano-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.dano-sub {
+    font-size: 0.75rem;
+    color: var(--accent);
+}
