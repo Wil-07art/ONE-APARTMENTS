@@ -58,7 +58,6 @@ const sedes = {
     ]
 };
 
-// Catálogo base de daños
 const danosCatalogo = [
     { nombre: "LLAVERO APARTAMENTO", precio: 50000 },
     { nombre: "LLAVE ", precio: 50000 },
@@ -84,43 +83,23 @@ const danosCatalogo = [
     { nombre: "CUCHARA PEQUEÑA", precio: 20000 },
     { nombre: "CUCHILLO DE COCINA", precio: 20000 },
     { nombre: "CUCHILLO DE MESA", precio: 20000 },
-    { nombre: "SACA CORCHO", precio: 20000 },
-    
+    { nombre: "SACA CORCHO", precio: 20000 }
 ];
 
-// Aquí guardaremos los daños que el usuario vaya sumando
+let inventarioActivo = [];
 let listaDanosSeleccionados = [];
+let sedeActual = 'sede1';
 
-function renderDanos() {
-    const contenedor = document.getElementById('listaDanosCheck');
-    contenedor.innerHTML = '';
-
-    // Renderizamos los daños del catálogo y los personalizados que se hayan agregado
-    listaDanosSeleccionados.forEach((d, i) => {
-        contenedor.innerHTML += `
-            <div class="dano-row">
-                <div class="dano-info">
-                    <span class="dano-label">${d.nombre}</span>
-                    <span class="dano-sub">$${d.precio.toLocaleString()} c/u</span>
-                </div>
-                <div class="controles">
-                    <div class="btn-qty" onclick="ajustarDano(${i}, -1)">−</div>
-                    <div class="qty-num">${d.cantidad}</div>
-                    <div class="btn-qty" onclick="ajustarDano(${i}, 1)">+</div>
-                </div>
-            </div>
-        `;
-    });
+function toggleDanos() {
+    const div = document.getElementById('seccionDanos');
+    div.classList.toggle('hidden');
 }
 
-// Inicializar lista de daños al cambiar de sede
 function cambiarSede(idSede, btn) {
     document.querySelectorAll('.btn-sede').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     sedeActual = idSede;
     inventarioActivo = sedes[idSede].map(p => ({ ...p, fisico: p.stock }));
-    
-    // Al iniciar, cargamos el catálogo con cantidad 0
     listaDanosSeleccionados = danosCatalogo.map(d => ({ ...d, cantidad: 0 }));
     
     document.getElementById('huesped').value = "";
@@ -134,7 +113,7 @@ function ajustarDano(index, delta) {
     if (nuevaCant >= 0) {
         listaDanosSeleccionados[index].cantidad = nuevaCant;
         renderDanos();
-        render(); // Para actualizar el total final
+        render();
     }
 }
 
@@ -142,17 +121,40 @@ function agregarDanoPersonalizado() {
     const nom = document.getElementById('otroDanoNombre');
     const pre = document.getElementById('otroDanoPrecio');
     if (nom.value && pre.value) {
-        // Agregamos un daño nuevo con cantidad 1
         listaDanosSeleccionados.push({ 
-            nombre: nom.value, 
+            nombre: nom.value.toUpperCase(), 
             precio: parseInt(pre.value), 
             cantidad: 1 
         });
-        nom.value = ""; 
-        pre.value = "";
+        nom.value = ""; pre.value = "";
         renderDanos();
         render();
     }
+}
+
+function ajustar(index, delta) {
+    let nuevo = inventarioActivo[index].fisico + delta;
+    if (nuevo >= -5 && nuevo <= inventarioActivo[index].stock) {
+        inventarioActivo[index].fisico = nuevo;
+        render();
+    }
+}
+
+function renderDanos() {
+    const contenedor = document.getElementById('listaDanosCheck');
+    contenedor.innerHTML = listaDanosSeleccionados.map((d, i) => `
+        <div class="dano-row">
+            <div class="dano-info">
+                <span class="dano-label">${d.nombre}</span>
+                <span class="dano-sub">$${d.precio.toLocaleString()} c/u</span>
+            </div>
+            <div class="controles">
+                <div class="btn-qty" onclick="ajustarDano(${i}, -1)">−</div>
+                <div class="qty-num">${d.cantidad}</div>
+                <div class="btn-qty" onclick="ajustarDano(${i}, 1)">+</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 function render() {
@@ -160,11 +162,9 @@ function render() {
     contenedor.innerHTML = '';
     let total = 0;
 
-    // Sumar Consumos
     inventarioActivo.forEach((p, i) => {
         const cobro = p.stock - p.fisico;
         total += (cobro * p.precio);
-        // ... (resto del código de render de productos que ya tenías)
         contenedor.innerHTML += `
             <div class="producto-row">
                 <div class="info">
@@ -181,7 +181,6 @@ function render() {
         `;
     });
 
-    // Sumar Daños al Total Final
     listaDanosSeleccionados.forEach(d => {
         total += (d.precio * d.cantidad);
     });
@@ -189,23 +188,24 @@ function render() {
     document.getElementById('totalFinal').innerText = `$${total.toLocaleString()}`;
 }
 
-// Actualización de la Factura PDF
 function generarPDF() {
-    // ... (inicialización del PDF)
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const huesped = document.getElementById('huesped').value || "CLIENTE";
+    const suite = document.getElementById('habitacion').value || "S/N";
+    const sedeActivaBtn = document.querySelector('.btn-sede.active');
+    const sedeTexto = sedeActivaBtn ? sedeActivaBtn.innerText : "GENERAL";
+
     const filas = [];
-    
-    // Consumos
     inventarioActivo.filter(p => (p.stock - p.fisico) > 0).forEach(p => {
         const c = p.stock - p.fisico;
         filas.push([p.nombre, `$${p.precio.toLocaleString()}`, c, `$${(p.precio * c).toLocaleString()}`]);
     });
 
-    // Daños con cantidad > 0
     listaDanosSeleccionados.filter(d => d.cantidad > 0).forEach(d => {
-        filas.push([`⚠️ DAÑO: ${d.nombre}`, `$${d.precio.toLocaleString()}`, d.cantidad, `$${(d.precio * d.cantidad).toLocaleString()}`]);
+        filas.push([`DAÑO: ${d.nombre}`, `$${d.precio.toLocaleString()}`, d.cantidad, `$${(d.precio * d.cantidad).toLocaleString()}`]);
     });
 
-    // ... (resto del código de generación del PDF)
     if (filas.length === 0) {
         alert("No hay consumos ni daños para facturar.");
         return;
@@ -214,9 +214,10 @@ function generarPDF() {
     doc.setFillColor(0, 0, 0);
     doc.rect(0, 0, 210, 40, 'F');
     doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
     doc.text("ONE APARTMENTS", 14, 20);
     doc.setFontSize(10);
-    doc.text(`${sedeTexto} | ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`${sedeTexto} | ${new Date().toLocaleString()}`, 14, 32);
 
     doc.setTextColor(0, 0, 0);
     doc.text(`HUÉSPED: ${huesped.toUpperCase()} | SUITE: ${suite}`, 14, 50);
@@ -233,4 +234,5 @@ function generarPDF() {
     doc.save(`Factura_One_${suite}.pdf`);
 }
 
+// Inicialización por defecto
 cambiarSede('sede1', document.querySelector('.btn-sede'));
