@@ -2,7 +2,7 @@ const sedes = {
     sede1: [
         { nombre: "Agua PH+ 477ML", precio: 10000, stock: 5 },
         { nombre: "Coca-cola Orignal", precio: 7000, stock: 3 },
-        { nombre: "Gatorade", precio: 8000, stock: 5 },
+        { nombre: "Gatorade", precio: 8000, stock: 3 },
         { nombre: "Redbull", precio: 18000, stock: 2 },
         { nombre: "Electrolit", precio: 21000, stock: 2 },
         { nombre: "Pringless", precio: 12000, stock: 1 },
