@@ -59,6 +59,8 @@ const sedes = {
 };
 
 const danosCatalogo = [
+    { nombre: "SABANA MANCHADA", precio: 10000 },
+    { nombre: "TOALLA MANCHADA", precio: 20000 },
     { nombre: "LLAVERO APARTAMENTO", precio: 50000 },
     { nombre: "LLAVE ", precio: 50000 },
     { nombre: "TOALLA DE BAÑO GRANDE", precio: 60000 },
